@@ -41,7 +41,7 @@ class AuditRegressionTest extends TestCase
         $this->withToken($token)->getJson('/api/user')->assertUnauthorized();
     }
 
-    public function test_profile_requires_password_confirmation_before_revealing_recovery_codes(): void
+    public function test_two_factor_page_requires_password_confirmation_before_revealing_recovery_codes(): void
     {
         $user = User::factory()->create();
         $user->forceFill([
@@ -50,9 +50,9 @@ class AuditRegressionTest extends TestCase
             'two_factor_confirmed_at' => now(),
         ])->save();
 
-        $this->actingAs($user)->get(route('profile.edit'))
+        $this->actingAs($user)->get(route('settings.two-factor'))
             ->assertRedirect(route('password.confirm'))->assertDontSee('secret-recovery-code');
-        $this->withSession(['auth.password_confirmed_at' => time()])->get(route('profile.edit'))
+        $this->withSession(['auth.password_confirmed_at' => time()])->get(route('settings.two-factor'))
             ->assertOk()->assertSee('secret-recovery-code');
     }
 
